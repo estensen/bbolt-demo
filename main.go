@@ -25,6 +25,9 @@ func main() {
 		}
 		return nil
 	})
+	if err != nil {
+		log.Print(err)
+	}
 
 	err = db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("bucket"))
@@ -32,5 +35,8 @@ func main() {
 		fmt.Printf("The answer is %s\n", v)
 		return nil
 	})
+	if err != nil {
+		log.Print(err)
+	}
 }
 
