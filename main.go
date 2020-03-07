@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	db, err := bolt.Open("books.db", 0600, nil)
+	db, err := bolt.Open("answers.db", 0600, nil)
 	if err != nil {
 		log.Fatal(err)
 	}

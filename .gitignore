@@ -6,7 +6,7 @@
 *.dylib
 
 bbolt-demo
-books.db
+answers.db
 
 # Test binary, build with `go test -c`
 *.test
