@@ -14,5 +14,16 @@ func main() {
 	}
 	defer db.Close()
 
-	fmt.Println("Hello bbolt!")
+	err = db.Update(func(tx *bolt.Tx) error {
+		b, err := tx.CreateBucketIfNotExists([]byte("bucket"))
+		if err != nil {
+			return fmt.Errorf("create bucket: %s", err)
+		}
+		err = b.Put([]byte("answer"), []byte("42"))
+		if err != nil {
+			return fmt.Errorf("put answer: %s", err)
+		}
+		return nil
+	})
 }
+
