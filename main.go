@@ -42,15 +42,16 @@ func (s *server) ServceHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) handlerTestDB() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		s.testDB()
+		answer := s.testDB()
 		w.WriteHeader(http.StatusOK)
+		w.Write(answer)
 	}
 }
 
-func (s *server) testDB() {
+func (s *server) testDB() (answer []byte) {
 	_ = s.putAnswer("42")
-	answer, _ := s.getAnswer()
-	fmt.Println(answer)
+	v, _ := s.getAnswer()
+	return v
 }
 
 func (s *server) putAnswer(answer string) (err error) {
@@ -71,18 +72,17 @@ func (s *server) putAnswer(answer string) (err error) {
 	return nil
 }
 
-func (s *server) getAnswer() (answer string, err error) {
+func (s *server) getAnswer() (answer []byte, err error) {
 	var val []byte
 	err = s.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("bucket"))
 		v := b.Get([]byte("answer"))
 		val = append([]byte(nil), v...)
-
 		return nil
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return string(val), nil
+	return val, nil
 }
