@@ -8,6 +8,10 @@ import (
 	"github.com/estensen/bbolt-demo/db"
 )
 
+type server struct {
+	db *db.DB
+}
+
 func main() {
 	db, err := db.NewDB("answers.db")
 	if err != nil {
@@ -15,7 +19,21 @@ func main() {
 	}
 	defer db.Close()
 
-	err = db.Update(func(tx *bolt.Tx) error {
+	srv := server{
+		db: db,
+	}
+
+	srv.testDB()
+}
+
+func (s *server) testDB() {
+	_ = s.putAnswer("42")
+	answer, _ := s.getAnswer()
+	fmt.Println(answer)
+}
+
+func (s *server) putAnswer(answer string) (err error) {
+	err = s.db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte("bucket"))
 		if err != nil {
 			return fmt.Errorf("create bucket: %s", err)
@@ -27,16 +45,24 @@ func main() {
 		return nil
 	})
 	if err != nil {
-		log.Print(err)
+		return err
 	}
+	return nil
+}
 
-	err = db.View(func(tx *bolt.Tx) error {
+func (s *server) getAnswer() (answer string, err error) {
+	var val []byte
+	err = s.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("bucket"))
 		v := b.Get([]byte("answer"))
-		fmt.Printf("The answer is %s\n", v)
+		val = append([]byte(nil), v...)
+
 		return nil
 	})
 	if err != nil {
-		log.Print(err)
+		return "", err
 	}
+
+	return string(val), nil
 }
+
