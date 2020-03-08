@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	db, err := bolt.Open("answers.db", 0600, nil)
+	db, err := NewDB("answers.db")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -39,4 +39,3 @@ func main() {
 		log.Print(err)
 	}
 }
-
