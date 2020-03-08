@@ -3,12 +3,13 @@ package main
 import (
 	"fmt"
 	"log"
-
 	bolt "go.etcd.io/bbolt"
+
+	"github.com/estensen/bbolt-demo/db"
 )
 
 func main() {
-	db, err := NewDB("answers.db")
+	db, err := db.NewDB("answers.db")
 	if err != nil {
 		log.Fatal(err)
 	}
