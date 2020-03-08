@@ -3,13 +3,17 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
+
 	bolt "go.etcd.io/bbolt"
 
 	"github.com/estensen/bbolt-demo/db"
+	"github.com/gorilla/mux"
 )
 
 type server struct {
-	db *db.DB
+	db     *db.DB
+	router *mux.Router
 }
 
 func main() {
@@ -19,11 +23,28 @@ func main() {
 	}
 	defer db.Close()
 
+	router := mux.NewRouter()
+
 	srv := server{
-		db: db,
+		db:     db,
+		router: router,
 	}
 
-	srv.testDB()
+	srv.routes()
+
+	log.Println("Server is running on port 3000")
+	http.ListenAndServe(":3000", srv.router)
+}
+
+func (s *server) ServceHTTP(w http.ResponseWriter, r *http.Request) {
+	s.router.ServeHTTP(w, r)
+}
+
+func (s *server) handlerTestDB() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.testDB()
+		w.WriteHeader(http.StatusOK)
+	}
 }
 
 func (s *server) testDB() {
@@ -65,4 +86,3 @@ func (s *server) getAnswer() (answer string, err error) {
 
 	return string(val), nil
 }
-
